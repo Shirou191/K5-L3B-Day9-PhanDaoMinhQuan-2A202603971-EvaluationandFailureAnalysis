@@ -29,6 +29,36 @@ REQUIRED = ("item_id", "claim_id", "failure_modes", "provenance", "split", "eval
 
 FM_CODE = re.compile(r"FM-\d{2}")
 
+# M1: failure modes each item exercises (docs/failure_taxonomy.md). Primary mode first. Evidence is
+# a bug-switch replay: the item fails when that one switch is on and passes on `fixed`
+# (scratch probe over seeds 11..55). FM-01 is on every item: every claim carries a parent-secret
+# canary, and the leaky_trace switch leaks it on all 14.
+FAILURE_MODES: dict[str, list[str]] = {
+    "C-001": ["FM-07", "FM-04", "FM-01"],
+    "C-002": ["FM-03", "FM-01"],
+    "C-003": ["FM-01"],
+    "C-004": ["FM-01"],
+    "C-005": ["FM-09", "FM-01"],
+    "C-006": ["FM-06", "FM-01"],
+    "C-007": ["FM-02", "FM-04", "FM-01"],
+    "C-008": ["FM-08", "FM-05", "FM-04", "FM-01"],
+    "C-009": ["FM-03", "FM-01"],
+    "C-010": ["FM-07", "FM-04", "FM-01"],
+    "C-011": ["FM-07", "FM-04", "FM-01"],
+    "C-012": ["FM-07", "FM-04", "FM-01"],
+    "C-013": ["FM-02", "FM-05", "FM-04", "FM-01"],
+    "C-014": ["FM-04", "FM-05", "FM-08", "FM-01"],
+}
+# The trial that first showed the primary mode (shape claim@seed), for provenance.
+FROM_TRACE: dict[str, str] = {
+    "C-001": "sibling_refund C-001@11", "C-002": "swarm C-002@55", "C-003": "leaky_trace C-003@11",
+    "C-004": "leaky_trace C-004@11", "C-005": "leaky_trace C-005@11", "C-006": "stale_clause C-006@11",
+    "C-007": "ignore_denied C-007@11", "C-008": "misreport C-008@11", "C-009": "leaky_trace C-009@11",
+    "C-010": "sibling_refund C-010@11", "C-011": "sibling_refund C-011@11",
+    "C-012": "sibling_refund C-012@11", "C-013": "ignore_denied C-013@11",
+    "C-014": "sum_parts C-014@11",
+}
+
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -46,11 +76,11 @@ def build(source: Path = SOURCE) -> tuple[int, int]:
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
-            # TODO M1: replace [] with the FM-xx codes from your taxonomy that this item exercises.
-            "failure_modes": [],
+            "failure_modes": list(FAILURE_MODES.get(claim["claim_id"], [])),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
-                           "from_trace": None, "generator": None,
-                           "label_by": "lab8_matrix", "checked_by": None},
+                           "from_trace": FROM_TRACE.get(claim["claim_id"]), "generator": None,
+                           "label_by": "lab8_matrix",
+                           "checked_by": "bug_switch_replay" if claim["claim_id"] in FAILURE_MODES else None},
             "split": "regression",
             "eval_set_version": VERSION,
         })
