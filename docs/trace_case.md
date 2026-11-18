@@ -26,7 +26,7 @@ python -m lab9.trace_case --shape fixed --claim C-002 --seed 11   # đối chứ
 
 | Trường | Nội dung |
 |---|---|
-| Trial | `seeded_regression C-002@11`, report `E-seeded_regression-20261118-0008` (eval set `000867acc41d`) |
+| Trial | `seeded_regression C-002@11`, report `E-seeded_regression-20261118-ab56` (eval set `ab561d8dc86a`) |
 | Triệu chứng | `pass_rate`, `refund_amount_correct`, `db_fact_kept` fail. Ledger ghi 20.000đ, nhãn là 0đ (`denied`). Reply "đã hoàn 20.000đ" **khớp** ledger nên `reply_matches_ledger` pass: reply trôi chảy đi kèm một khoản hoàn sai. |
 | Bước sai đầu tiên | **Event 3 `model_override {"delay_days": 5}`**: agent thay số ngày trễ của DB (2) bằng số trong ticket "giao trễ 5 ngày". |
 | Vì sao là bước *đầu tiên* | Event 1 `handoff` đúng hợp đồng (`owner_order_only`, tool chỉ đọc). Event 2 `investigator` đọc đúng DB: O-202 `delay_days: 2`. Với 2 ngày, SHIP-LATE-03 (cần ≥ 3 ngày) không áp dụng. Mọi bước sau (quote 20.000đ ở event 4, ghi ledger, reply) đều đúng *theo dữ liệu đã bị đè* ở event 3. |
