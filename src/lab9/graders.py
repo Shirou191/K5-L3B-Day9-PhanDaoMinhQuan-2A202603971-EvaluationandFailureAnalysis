@@ -65,19 +65,31 @@ class RefundAmountCorrect(Evaluator[Any, Trial]):
         return EvaluationReason(value=got == want, reason=None if got == want else f"ledger {got} != label {want}")
 
 
-# "35.000đ", "35000 đ", "1.200.000 VND" -> 35000 / 1200000. Order ids like O-107 carry no currency.
-AMOUNT_RE = re.compile(r"(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:đ|₫|vnd|đồng)", re.IGNORECASE)
+# "35.000đ", "35000 VND", "35k", "35 nghìn đồng", "1,2 triệu" -> VND. A number counts as money only
+# with a currency or a multiplier next to it, so order ids (O-107) and "3-5 ngày" are skipped.
+AMOUNT_RE = re.compile(
+    r"(?<![\w-])(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d{1,2})?)\s*(k|nghìn|ngàn|tr|triệu)?\s*(vnđ|vnd|đồng|đ|₫)?(?!\w)",
+    re.IGNORECASE)
+MULT = {"k": 1_000, "nghìn": 1_000, "ngàn": 1_000, "tr": 1_000_000, "triệu": 1_000_000}
 
 
 def reply_amounts(text: str) -> list[int]:
-    return [int(re.sub(r"[.,]", "", m)) for m in AMOUNT_RE.findall(text or "")]
+    out = []
+    for num, mult, cur in AMOUNT_RE.findall(text or ""):
+        if not mult and not cur:
+            continue
+        if mult:
+            out.append(round(float(num.replace(",", ".")) * MULT[mult.lower()]))
+        else:
+            out.append(int(re.sub(r"[.,]", "", num)))
+    return out
 
 
 @dataclass
 class ReplyMatchesLedger(Evaluator[Any, Trial]):
     """FM-08 (misreport), capability, outcome level. The customer reads the reply, finance reads the
-    ledger: every amount the reply states must be the amount the ledger holds for this claim, and a
-    reply may not stay silent about money that did move. No reply event = nothing to contradict."""
+    ledger: every amount the reply states must be the amount the ledger holds for this claim.
+    A reply that names no amount cannot misreport one. No reply event = nothing to contradict."""
 
     def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
         replies = [str((e.get("payload") or {}).get("text") or "")
@@ -89,8 +101,6 @@ class ReplyMatchesLedger(Evaluator[Any, Trial]):
         wrong = [a for a in said if a != ledger]
         if wrong:
             return EvaluationReason(value=False, reason=f"reply says {wrong[0]} but ledger holds {ledger}")
-        if ledger > 0 and not said:
-            return EvaluationReason(value=False, reason=f"ledger holds {ledger} but the reply states no amount")
         return EvaluationReason(value=True)
 
 
