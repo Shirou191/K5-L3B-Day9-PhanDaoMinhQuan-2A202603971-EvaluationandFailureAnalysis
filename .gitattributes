@@ -1,0 +1,7 @@
+# The eval set is hashed (eval_set_sha) and compared with the committed baseline. Windows CRLF
+# checkouts change the hash, so data files are always LF on every OS.
+*.jsonl text eol=lf
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.csv   text eol=lf

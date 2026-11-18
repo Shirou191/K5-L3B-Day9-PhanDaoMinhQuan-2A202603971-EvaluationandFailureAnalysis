@@ -2,8 +2,8 @@
 
 Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10. Mọi số dưới đây lấy từ report do `python -m lab9.eval` sinh ra (dẫn run ID), không gõ tay.
 
-- **Run ID / eval set SHA:** baseline `E-swarm-20261118-0008` (`reports/baseline_v1.json`), eval set v1 `000867acc41d`
-- **Phiên bản:** code nhánh `starter/d09` · eval set v1 (sha `000867acc41d`) · metric_spec `1.0` · grader `lab9/graders.py` (cùng commit) · seeds 11/22/33/44/55 · MockLLM · Python 3.14
+- **Run ID / eval set SHA:** baseline `E-swarm-20261118-ab56` (`reports/baseline_v1.json`), eval set v1 `ab561d8dc86a`
+- **Phiên bản:** code nhánh `starter/d09` · eval set v1 (sha `ab561d8dc86a`) · metric_spec `1.0` · grader `lab9/graders.py` (cùng commit) · seeds 11/22/33/44/55 · MockLLM · Python 3.14
 - **Eval set:** v1, 14 item × 5 seed = 70 trial, nguồn `lab8_public`; nhãn tách riêng ở `labels_v1.json`; mỗi item có `failure_modes` và `provenance.from_trace` (xem `docs/failure_taxonomy.md`)
 - **Metric & ngưỡng** (`config/metric_spec.yaml`):
 
@@ -23,7 +23,7 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10. Mọi s�
 
 | Metric | swarm (baseline) | fixed | seeded_regression | Δ seeded − baseline, CI 95% | Gate |
 |---|---|---|---|---|---|
-| run ID | `E-swarm-20261118-0008` | `E-fixed-20261118-0008` | `E-seeded_regression-20261118-0008` | | |
+| run ID | `E-swarm-20261118-ab56` | `E-fixed-20261118-ab56` | `E-seeded_regression-20261118-ab56` | | |
 | pass_rate | 0.9857 | 1.0 | 0.7143 | −0.271 [−0.500, −0.057] | **BLOCK** |
 | refund_amount_correct | 0.9857 | 1.0 | 0.8571 | −0.129 [−0.315, +0.000] | BLOCK (dưới sàn 0.95) |
 | reply_matches_ledger | 1.0 | 1.0 | 0.7857 | −0.214 [−0.429, +0.000] | BLOCK (dưới sàn 1.0) |
@@ -51,7 +51,7 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10. Mọi s�
 
 ## v2 (Advanced / Expert)
 
-- **Run ID / eval set SHA:** baseline `E-swarm-20261118-195f` (`reports/baseline_v2.json`), eval set v2 `195fb8c97af0`: 28 item (14 v1 + 14 adversarial) × 5 seed = 140 trial; spec `config/metric_spec_v2.yaml` (metric_spec_version 2.0).
+- **Run ID / eval set SHA:** baseline `E-swarm-20261118-17c3` (`reports/baseline_v2.json`), eval set v2 `17c3d99d16ec`: 28 item (14 v1 + 14 adversarial) × 5 seed = 140 trial; spec `config/metric_spec_v2.yaml` (metric_spec_version 2.0).
 - **Baseline v2:** pass_rate 0.9786 · pass@1 0.9786 · pass^3 0.9357 · **pass^5 0.8929** · pass@5 1.0 · refund_amount_correct 0.9786 · reply_matches_ledger 1.0 · quote_respected 1.0 · approval_bypass 0 · secret_leak 0. Ba trial fail: `E-002@55`, `E-101@55`, `E-102@55`, đều là FM-03 của swarm gốc ở `seed % 5 == 0`.
 
 ### Ngưỡng chọn từ A/A
